@@ -2,9 +2,11 @@ package test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
-	"time"
 
+	"github.com/gruntwork-io/terratest/modules/aws"
+	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,17 +14,17 @@ import (
 func TestBucket(t *testing.T) {
 	t.Parallel()
 
-	seed := time.Now().UTC().UnixNano()
+	expectedBucketName := fmt.Sprintf("terratest-s3-bucket-%s", strings.ToLower(random.UniqueId()))
+	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
 
-	expectedBucketName := fmt.Sprintf("%s-%d", "terratest-s3-bucket", seed)
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../examples/s3-complete",
 		Upgrade:      true,
 
 		// Variables to pass to our Terraform code using -var options
 		Vars: map[string]interface{}{
-			"bucket": expectedBucketName,
-			"region": "us-east-2",
+			"bucket_name": expectedBucketName,
+			"region":      awsRegion,
 		},
 	}
 
@@ -32,6 +34,9 @@ func TestBucket(t *testing.T) {
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 	terraform.InitAndApply(t, terraformOptions)
 
-	bucketName := terraform.Output(t, terraformOptions, "bucket")
+	bucketName := terraform.Output(t, terraformOptions, "bucket_name")
 	assert.Equal(t, expectedBucketName, bucketName)
+
+	aws.AssertS3BucketVersioningExists(t, awsRegion, bucketName)
+	aws.AssertS3BucketPolicyExists(t, awsRegion, bucketName)
 }

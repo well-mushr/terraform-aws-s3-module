@@ -5,8 +5,8 @@ provider "aws" {
 module "s3" {
   source = "../../"
 
-  bucket = var.bucket
-  acl    = "private"
+  bucket_name = var.bucket_name
+  acl         = "private"
 
   versioning = {
     enabled = true
@@ -47,7 +47,7 @@ module "s3" {
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:List*",
-      "Resource": "arn:aws:s3:::${var.bucket}/*",
+      "Resource": "arn:aws:s3:::${var.bucket_name}/*",
       "Condition": {
         "IpAddress": {
           "aws:SourceIp": [
@@ -61,20 +61,6 @@ module "s3" {
 EOF
 
   tags = {
-    Project = var.bucket
+    Project = var.bucket_name
   }
-}
-
-variable "bucket" {
-  type        = string
-  description = "Bucket name, it should match with the name used at the test"
-}
-
-variable "region" {
-  type        = string
-  description = "AWS region"
-}
-
-output "bucket" {
-  value = module.s3.bucket
 }
