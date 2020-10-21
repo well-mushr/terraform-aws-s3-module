@@ -22,7 +22,7 @@ func TestBucket(t *testing.T) {
 		// Variables to pass to our Terraform code using -var options
 		Vars: map[string]interface{}{
 			"bucket": expectedBucketName,
-			"region": "us-east-1",
+			"region": "us-east-2",
 		},
 	}
 
