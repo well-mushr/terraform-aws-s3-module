@@ -7,6 +7,7 @@ variable "acl" {
 variable "bucket_name" {
   type        = string
   description = "(Optional, Forces new resource) The bucket of the bucket. If omitted Terraform will assign a random, unique name."
+  default     = null
 }
 
 variable "lifecycle_rule" {
